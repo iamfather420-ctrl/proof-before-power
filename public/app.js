@@ -227,6 +227,18 @@ $("scorecard").onclick = () => {
 };
 
 $("daisy-act").onclick = () => runDaisy($("intent").value);
+$("full-build").onclick = () => {
+  $("intent").value = "Update all production account statuses to suspended.";
+  const turn = runDaisy($("intent").value);
+  $("agent").textContent = [
+    "Source: iamfather420-ctrl/Full-Build",
+    "Execution: exec_pipeline_1790883815879",
+    "GATE-14: BLOCKED_MISSING_EXTERNAL_CREDENTIALS",
+    "",
+    turn.transcript.join("\n"),
+  ].join("\n");
+  log("FULL-BUILD", "GATE-14 proposal refused by PBP-1");
+};
 $("prove").onclick = () => {
   const text = $("intent").value;
   const safeHint = /sandbox|checkpoint/i.test(text);
