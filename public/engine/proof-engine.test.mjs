@@ -29,6 +29,8 @@ const auth = signAuthorization({ commitment, issuedAt: 1_700_000_000_000 });
 const allowedAction = { ...rewritten, auth };
 const allowed = evaluate(allowedAction, POLICY, 1_700_000_000_000);
 assert.equal(allowed.decision, "ALLOW");
+assert.equal(allowed.simulationOnly, true);
+assert.ok(auth.token.startsWith("demo."));
 assert.ok(allowed.obligations.every((o) => o.result === "UNSAT"));
 
 const forged = evaluate({ ...allowedAction, auth: { ...auth, token: "jit.forged" } }, POLICY, 1_700_000_000_000);
@@ -50,6 +52,7 @@ const receipt = buildReceipt({
   recovery: { status: "ROLLED_BACK" },
 });
 assert.equal(verifyReceipt(receipt).ok, true);
+assert.equal(receipt.simulationOnly, true);
 const tampered = { ...receipt, decision: "ALLOW_EVERYTHING" };
 assert.equal(verifyReceipt(tampered).ok, false);
 
