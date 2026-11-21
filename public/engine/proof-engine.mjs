@@ -9,13 +9,13 @@
 
 export const POLICY = {
   id: "PBP-1",
-  name: "Proof Before Power",
+  name: "Proof Before Power — Local Simulation",
   allowlist: ["ACCOUNT_STATUS_UPDATE"],
   demoTenant: "TENANT_ENTERPRISE_DEMO",
   maxBlast: 1,
   jitWindowMs: 120_000,
   theory:
-    "executable(a) iff allowlisted(op) ∧ tenantBound ∧ envSafe ∧ blastBounded ∧ reversible ∧ authPresent ∧ authBinds(commitment) ∧ jitFresh",
+    "executable(a) iff allowlisted(op) ∧ tenantBound ∧ envSafe ∧ blastBounded ∧ reversible ∧ demoChecksumPresent ∧ demoChecksumBinds(commitment) ∧ jitFresh",
 };
 
 const textEncoder = new TextEncoder();
@@ -115,15 +115,21 @@ export function commitmentOf(action) {
   }));
 }
 
-export function signAuthorization({ actor = "judge.demo", commitment, issuedAt = Date.now() }) {
+/**
+ * DEMO ONLY: this checksum is publicly reproducible and is NOT a signature,
+ * authenticated human approval, identity proof, or production authorization.
+ * A real deployment must replace this with a server-verified asymmetric
+ * signature bound to an authenticated principal and trusted clock.
+ */
+export function signAuthorization({ actor = "demo.operator", commitment, issuedAt = Date.now() }) {
   if (!commitment) throw new Error("Authorization must bind a commitment.");
-  const token = `jit.${sha256(`${actor}|${commitment}|${issuedAt}`)}`;
+  const token = `demo.${sha256(`${actor}|${commitment}|${issuedAt}`)}`;
   return { actor, issuedAt, commitment, token };
 }
 
 export function tokenMatches(auth) {
   if (!auth || !auth.token || !auth.actor || !auth.commitment || auth.issuedAt == null) return false;
-  return auth.token === `jit.${sha256(`${auth.actor}|${auth.commitment}|${auth.issuedAt}`)}`;
+  return auth.token === `demo.${sha256(`${auth.actor}|${auth.commitment}|${auth.issuedAt}`)}`;
 }
 
 function row(id, claim, holds, witness, counterexample) {
@@ -160,7 +166,7 @@ export function evaluate(action, policy = POLICY, now = Date.now()) {
     row("REVERSIBLE", "checkpoint sealed and inverse operation defined before mutation", reversible,
       reversible ? "checkpoint+inverse" : null,
       { checkpoint: action.checkpoint, inverseDefined: action.inverseDefined }),
-    row("AUTH_PRESENT", "human token matches sha256(actor|commitment|issuedAt)", authPresent,
+    row("AUTH_PRESENT", "demo checksum matches sha256(actor|commitment|issuedAt)", authPresent,
       authPresent ? action.auth.actor : null,
       { auth: null }),
     row("AUTH_BINDS", "authorization.commitment = sha256(canonical(action without auth))", authBinds,
@@ -178,13 +184,14 @@ export function evaluate(action, policy = POLICY, now = Date.now()) {
     theory: policy.theory,
     decision,
     meaning: decision === "ALLOW"
-      ? "Unsafe execution state is UNSAT in PBP-1. Power may be granted for this scope only."
+      ? "DEMO ONLY: all local simulation obligations hold. This does not authenticate a person or authorize any real system action."
       : "A countermodel exists. Capability is not authority. Power is withheld.",
     commitment,
     obligations,
     counterexamples: failed.map((o) => ({ obligation: o.id, model: o.counterexample })),
     elapsedMs: Date.now() - t0,
     notAModel: true,
+    simulationOnly: true,
   };
 }
 
@@ -207,6 +214,7 @@ export function rewriteSafe(action) {
 export function buildReceipt({ action, proof, execution, recovery }) {
   const body = {
     schema: "UAF-RECEIPT.v2",
+    simulationOnly: true,
     policy: proof.policy,
     theory: proof.theory,
     decision: proof.decision,
@@ -253,8 +261,8 @@ const PLAIN = {
   ENV_SAFE: "Production was requested without a production grant.",
   BLAST_RADIUS: "The target set is wider than the blast limit.",
   REVERSIBLE: "No checkpoint and inverse were sealed before mutation.",
-  AUTH_PRESENT: "No human authorization is present.",
-  AUTH_BINDS: "The authorization was issued for a different action.",
+  AUTH_PRESENT: "No valid demo checksum is present. This simulator does not verify human identity.",
+  AUTH_BINDS: "The demo checksum is bound to a different action. It is not a digital signature.",
   JIT_FRESH: "The authorization is outside the JIT window.",
 };
 

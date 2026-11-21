@@ -18,13 +18,15 @@
         <em>Proof Before Power</em>
       </div>
     </a>
-    <p class="thesis">Full-Build proposes. This gate decides. A refusal means the tool does not run.</p>
+    <p class="thesis">Local policy simulation only. No real identity provider, external tool, account, or production system is connected.</p>
     <div class="top-actions">
       <a class="live" id="origin" href="https://www.uarefake.com" target="_blank" rel="noreferrer"><i></i> checking uarefake.com</a>
       <button id="reset">Reset</button>
       <button id="tour" class="primary">Judge tour</button>
     </div>
   </header>
+
+  <p class="fine" role="note">SIMULATOR ONLY: the demo authorization is a public SHA-256 checksum, not a digital signature or proof of human identity. “ALLOW” means only that this local in-memory demo satisfies its policy checks.</p>
 
   <ol class="loop" id="loop"></ol>
 
@@ -105,7 +107,7 @@
             <div class="checkpoint" id="ckpt">no checkpoint</div>
           </div>
           <div class="row-actions">
-            <button id="authorize" disabled>Sign authorization</button>
+            <button id="authorize" disabled>Create demo checksum</button>
             <button id="execute" disabled>Execute bounded op</button>
             <button id="rollback" disabled>Reverse state</button>
           </div>
@@ -160,7 +162,7 @@ gate waiting</pre>
   </main>
   <footer>
     <span>Theory PBP-1 · finite · decidable</span>
-    <span>VERIFIED on this action · production mutation blocked</span>
+    <span>DEMO CHECKSUM MATCHED · no real production mutation is connected</span>
     <span id="keys">1 prove · 2 sign · 3 execute · 4 reverse · T tamper</span>
   </footer>
   <div id="toast" class="toast" hidden></div>

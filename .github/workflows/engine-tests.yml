@@ -1,0 +1,21 @@
+name: Proof Before Power Simulation Tests
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: ["fix/**"]
+
+permissions:
+  contents: read
+
+jobs:
+  engine-tests:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - name: Run deterministic engine tests
+        run: node public/engine/proof-engine.test.mjs
