@@ -166,7 +166,7 @@ export function evaluate(action, policy = POLICY, now = Date.now()) {
     row("REVERSIBLE", "checkpoint sealed and inverse operation defined before mutation", reversible,
       reversible ? "checkpoint+inverse" : null,
       { checkpoint: action.checkpoint, inverseDefined: action.inverseDefined }),
-    row("AUTH_PRESENT", "human token matches sha256(actor|commitment|issuedAt)", authPresent,
+    row("AUTH_PRESENT", "demo checksum matches sha256(actor|commitment|issuedAt)", authPresent,
       authPresent ? action.auth.actor : null,
       { auth: null }),
     row("AUTH_BINDS", "authorization.commitment = sha256(canonical(action without auth))", authBinds,
